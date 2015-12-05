@@ -1,25 +1,26 @@
 package schedulers;
 
+import java.util.List;
+
 import basics.Task;
-import basics.TaskList;
 
 public class HVDF_Scheduler extends Scheduler
-{	
+{
 	@Override
-	public int getRelevantValue(Task task, int time)
+	public double getRelevantValue(Task task, long time)
 	{
-		return task.getValue() / task.getComputationTime();
+		return task.getValueDensity();
 	}
 	
 	@Override
-	public TaskList prune(TaskList tasklist, int time)
-	{
-		return highestSort(tasklist, time);
-	}
-
-	@Override
-	public String printTaskStatus(Task task, int time)
+	public String printTaskStatus(Task task, long time)
 	{
 		return "Task " + task.getName() + " has a value density of " + getRelevantValue(task, time) + ".";
+	}
+	
+	@Override
+	public List<Task> prune(List<Task> list, long time)
+	{
+		return highestSort(list, time);
 	}
 }

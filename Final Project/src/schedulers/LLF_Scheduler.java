@@ -1,25 +1,42 @@
 package schedulers;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import basics.Task;
-import basics.TaskList;
 
 public class LLF_Scheduler extends Scheduler
 {
 	@Override
-	public int getRelevantValue(Task task, int time)
+	public double getRelevantValue(Task task, long time)
 	{
-		return task.getNextDeadline() - (time + task.getRemainingCompTime());
+		return task.getLaxity(time);
 	}
 	
 	@Override
-	public TaskList prune(TaskList tasklist, int time)
+	public String printTaskStatus(Task task, long time)
 	{
-		return lowestSort(tasklist, time);
+		return "Task " + task.getName() + " has a laxity of " + (long) getRelevantValue(task, time) + ".";
 	}
 	
 	@Override
-	public String printTaskStatus(Task task, int time)
+	public List<Task> prune(List<Task> list, long time)
 	{
-		return "Task " + task.getName() + " has a laxity of " + getRelevantValue(task, time) + ".";
+		List<Task> ans = lowestSort(list, time);
+		
+		if(ans.size() < 2)
+			return ans;
+		
+		long deadline = ans.get(0).getNextDeadline();
+		
+		for(Task task : ans)
+			deadline = Math.min(deadline, task.getNextDeadline());
+		
+		List<Task> ret = new ArrayList<Task>();
+		for(Task task : ans)
+			if(task.getNextDeadline() <= deadline)
+				ret.add(task);
+		
+		return ret;
 	}
 }

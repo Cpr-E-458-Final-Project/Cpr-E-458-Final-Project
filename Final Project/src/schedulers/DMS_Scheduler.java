@@ -1,25 +1,26 @@
 package schedulers;
 
+import java.util.List;
+
 import basics.Task;
-import basics.TaskList;
 
 public class DMS_Scheduler extends Scheduler
 {
 	@Override
-	public int getRelevantValue(Task task, int time)
+	public double getRelevantValue(Task task, long time)
 	{
 		return task.getDeadline();
 	}
 	
 	@Override
-	public TaskList prune(TaskList tasklist, int time)
+	public String printTaskStatus(Task task, long time)
 	{
-		return lowestSort(tasklist, time);
+		return "Task " + task.getName() + " has a relative deadline of " + (long) getRelevantValue(task, time) + ".";
 	}
 	
 	@Override
-	public String printTaskStatus(Task task, int time)
+	public List<Task> prune(List<Task> list, long time)
 	{
-		return "Task " + task.getName() + " has a relative deadline of " + getRelevantValue(task, time) + ".";
+		return lowestSort(list, time);
 	}
 }
