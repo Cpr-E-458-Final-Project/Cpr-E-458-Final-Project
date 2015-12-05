@@ -6,7 +6,7 @@ public class Task
 	 * The total amount (in units of time) that a Task has to run for each
 	 * period.
 	 */
-	long _computation_time = -1;
+	protected long _computation_time = -1;
 	
 	/**
 	 * The amount (in remaining units of time) that this Task needs to run for
@@ -45,7 +45,7 @@ public class Task
 	/**
 	 * The name of the Task.
 	 */
-	String _name = null;
+	protected String _name = null;
 	
 	/**
 	 * Constructs a Task object.

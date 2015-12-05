@@ -6,6 +6,7 @@ import basics.Task;
 
 public class EDF_Checker implements SchedulabilityChecker
 {
+	@SuppressWarnings("unused")
 	private boolean details = false;
 	
 	boolean deadline_less_than(List<Task> list)
@@ -41,6 +42,7 @@ public class EDF_Checker implements SchedulabilityChecker
 	@Override
 	public boolean isSchedulable(List<Task> list, boolean details)
 	{
+//		this.details = details;
 		if(isSimple(list))
 		{
 			return period_less_than(list);

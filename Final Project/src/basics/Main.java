@@ -42,6 +42,15 @@ public class Main
 		}
 	}
 	
+	public class All implements Judger
+	{
+		@Override
+		public boolean judge(boolean[] results)
+		{
+			return true;
+		}
+	}
+	
 	public class All_fail implements Judger
 	{
 		@Override
@@ -76,15 +85,17 @@ public class Main
 	
 	private static final int MAX_TASK_NUMBER = 5;
 	
-	private static final int MAX_PERIOD_SIZE = 50;
+	private static final int MAX_PERIOD_SIZE = 20;
 	
-	private static final int NUMBER_OF_TESTS = 500;
+	private static final int NUMBER_OF_TESTS = 50;
 	
 	private static final int	RMS	= 0;
 	private static final int	DMS	= 1;
 	private static final int	EDF	= 2;
+	@SuppressWarnings("unused")
 	private static final int	LLF	= 3;
 	
+	@SuppressWarnings("unused")
 	private static final boolean DETAILS = true;
 	
 	private static Algorithm[] algorithms = {
@@ -93,7 +104,7 @@ public class Main
 			This.new Algorithm("EDF", new EDF_Checker(), new EDF_Scheduler()),
 			This.new Algorithm("LLF", new LLF_Checker(), new LLF_Scheduler())};
 			
-	private static Random rand = new Random();
+	private static Random rand = new Random(1);
 	
 	public static void main(String[] args)
 	{
@@ -148,11 +159,18 @@ public class Main
 		return ret;
 	}
 
+	@SuppressWarnings("unused")
 	private static final Judger DMS_NOT_RMS = This.new DMS_not_RMS();
+	@SuppressWarnings("unused")
 	private static final Judger EDF_NOT_DMS = This.new EDF_not_DMS();
+	@SuppressWarnings("unused")
 	private static final Judger ALL_PASS = This.new All_pass();
+	@SuppressWarnings("unused")
 	private static final Judger ALL_FAIL = This.new All_fail();
-	private static final Judger PARSE = EDF_NOT_DMS;
+	@SuppressWarnings("unused")
+	private static final Judger ALL = This.new All();
+
+	private static final Judger PARSE = ALL;
 	
 	private static boolean test()
 	{
@@ -189,8 +207,8 @@ public class Main
 				for(int index = 0; index < algorithms.length; index++)
 				{
 					boolean check, schedule;
-					System.out.println(algorithms[index].name + " Check = " + (check = algorithms[index].checker.isSchedulable(list)));
-					System.out.println(algorithms[index].name + " Schedule = " + (schedule = algorithms[index].scheduler.schedule(list)) + "\n");
+					System.out.println(algorithms[index].name + " Check = " + (check = algorithms[index].checker.isSchedulable(list, true)));
+					System.out.println(algorithms[index].name + " Schedule = " + (schedule = algorithms[index].scheduler.schedule(list, true)) + "\n");
 					
 					if(check != schedule)
 					{

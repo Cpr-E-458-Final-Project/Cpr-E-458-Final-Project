@@ -78,7 +78,7 @@ public class DMS_Checker implements SchedulabilityChecker
 				{
 					if(details)
 					{
-						System.out.println("All Tasks with deadlines no greater than " + deadline + " have a response time of " + response + "; the exact analysis test has failed.\n}");
+						System.out.println("All Tasks with deadlines no greater than " + deadline + " have a response time of " + response + "; the exact analysis test has failed.");
 					}
 					return false;
 				}
@@ -90,27 +90,19 @@ public class DMS_Checker implements SchedulabilityChecker
 			}
 			if(details)
 			{
-				System.out.println("All Tasks with deadlines no greater than " + deadline + " have a steady response time of " + response + "; the exact analysis test has passed for Tasks with deadlines of " + deadline + " or less.\n}");
+				System.out.println("All Tasks with deadlines no greater than " + deadline + " have a steady response time of " + response + "; the exact analysis test has passed for Tasks with deadlines of " + deadline + " or less.");
 			}
 		}
 		if(details)
 		{
-			System.out.println("All Tasks pass the exact requirement test.\n}");
+			System.out.println("All Tasks pass the exact requirement test.");
 		}
 		return true;
 	}
 	
 	protected Expression getDemand(Task task, long response)
 	{
-		return new MultExp(
-				new NumExp(task.getComputationTime()), 
-				new CeilExp(
-						new DivExp(
-								new NumExp(response), 
-								new NumExp(task.getPeriod())
-						)
-				)
-		);
+		return new MultExp(new NumExp(task.getComputationTime()), new CeilExp(new DivExp(new NumExp(response), new NumExp(task.getPeriod()))));
 	}
 	
 	protected long getResponse(List<Task> list, long deadline, long response)
@@ -166,9 +158,9 @@ public class DMS_Checker implements SchedulabilityChecker
 		List<Task> newlist = new ArrayList<Task>();
 		
 		newlist.addAll(list);
-		this.details = details;
+//		this.details = details;
 		boolean ret = isPossible(newlist) && (utilizationTest(newlist) || exactAnalysis(newlist));
-		this.details = false;
+//		this.details = false;
 		return ret;
 	}
 	
@@ -186,8 +178,8 @@ public class DMS_Checker implements SchedulabilityChecker
 	{
 		double sum = 0.0;
 		
-		for(int index = 0; index < list.size(); index++)
-			sum += (double) list.get(index).getComputationTime() / (double) list.get(index).getDeadline();
+		for(Task task : list)
+			sum += (double) task.getComputationTime() / (double) task.getDeadline();
 			
 		return sum <= (list.size() * (Math.pow(2.0, (1.0 / (double) list.size())) - 1.0));
 	}
