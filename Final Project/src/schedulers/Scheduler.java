@@ -105,13 +105,13 @@ public abstract class Scheduler
 				}
 			}
 			
-			if(details)
-			{
-				for(Task task : temp_list)
-				{
-					System.out.println(printTaskStatus(task, time));
-				}
-			}
+//			if(details)
+//			{
+//				for(Task task : temp_list)
+//				{
+//					System.out.println(printTaskStatus(task, time));
+//				}
+//			}
 			
 			if(!temp_list.isEmpty())
 			{
