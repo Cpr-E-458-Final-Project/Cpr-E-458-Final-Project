@@ -9,19 +9,19 @@ public class RMS_Scheduler extends Scheduler
 	static Scheduler DMS = new DMS_Scheduler();
 	
 	@Override
-	public int getRelevantValue(Task task, int time)
+	public double getRelevantValue(Task task, long time)
 	{
 		return task.getPeriod();
 	}
 	
 	@Override
-	public String printTaskStatus(Task task, int time)
+	public String printTaskStatus(Task task, long time)
 	{
-		return "Task " + task.getName() + " has a period of " + getRelevantValue(task, time) + ".";
+		return "Task " + task.getName() + " has a period of " + (long) getRelevantValue(task, time) + ".";
 	}
 	
 	@Override
-	public List<Task> prune(List<Task> list, int time)
+	public List<Task> prune(List<Task> list, long time)
 	{
 		return DMS.prune(lowestSort(list, time), time);
 	}

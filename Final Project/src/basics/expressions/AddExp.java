@@ -21,6 +21,14 @@ public class AddExp extends Expression
 	}
 	
 	@Override
+	public boolean isProcessed()
+	{
+		if(exps.size() == 1)
+			return exps.get(0).isProcessed();
+		return false;
+	}
+	
+	@Override
 	public Expression clone()
 	{
 		List<Expression> exps = new ArrayList<Expression>();
@@ -71,6 +79,10 @@ public class AddExp extends Expression
 	@Override
 	public Expression process()
 	{
+		if(exps.size() == 1)
+		{
+			return exps.get(0).process();
+		}
 		boolean once_over = false;
 		for(Expression exp : exps)
 		{

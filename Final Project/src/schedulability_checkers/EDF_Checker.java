@@ -4,9 +4,9 @@ import java.util.List;
 
 import basics.Task;
 
-
 public class EDF_Checker implements SchedulabilityChecker
 {
+	private boolean details = false;
 	
 	boolean deadline_less_than(List<Task> list)
 	{
@@ -14,18 +14,17 @@ public class EDF_Checker implements SchedulabilityChecker
 		
 		for(Task task : list)
 			sum += ((double) task.getComputationTime()) / ((double) task.getDeadline());
-			
 		return sum <= 1.0;
 	}
 	
-	int getProcessorDemand(Task task, int time)
+	long getProcessorDemand(Task task, long time)
 	{
-		return(((int) (Math.floor(((double) (time - task.getDeadline())) / (double) task.getPeriod())) + 1) * task.getComputationTime());
+		return(((long) (Math.floor(((double) (time - task.getDeadline())) / (double) task.getPeriod())) + 1) * task.getComputationTime());
 	}
 	
-	int getProcessorDemand(List<Task> list, int time)
+	long getProcessorDemand(List<Task> list, int time)
 	{
-		int ret = 0;
+		long ret = 0;
 		
 		for(Task task : list)
 			ret += getProcessorDemand(task, time);
@@ -43,9 +42,13 @@ public class EDF_Checker implements SchedulabilityChecker
 	public boolean isSchedulable(List<Task> list, boolean details)
 	{
 		if(isSimple(list))
+		{
 			return period_less_than(list);
-		else if(deadline_less_than(list)) return true;
-		// return new EDF_Scheduler().schedule(list);
+		}
+		else if(deadline_less_than(list))
+		{
+			return true;
+		}
 		return processorDemandTest(list);
 	}
 	
@@ -67,26 +70,26 @@ public class EDF_Checker implements SchedulabilityChecker
 		return sum <= 1.0;
 	}
 	
-	static int gcd(int a, int b)
+	static long gcd(long ret, long l)
 	{
-		while(b > 0)
+		while(l > 0)
 		{
-			int c = b;
-			b = a % b;
-			a = c;
+			long c = l;
+			l = ret % l;
+			ret = c;
 		}
 		
-		return a;
+		return ret;
 	}
 	
-	static int lcm(int a, int b)
+	static long lcm(long ret, long l)
 	{
-		return a * (b / gcd(a, b));
+		return ret * (l / gcd(ret, l));
 	}
 	
-	int determineScheduleLength(List<Task> list)
+	long determineScheduleLength(List<Task> list)
 	{
-		int ret = list.get(0).getPeriod();
+		long ret = list.get(0).getPeriod();
 		
 		for(int index = 1; index < list.size(); index++)
 		{
@@ -98,7 +101,7 @@ public class EDF_Checker implements SchedulabilityChecker
 	
 	boolean processorDemandTest(List<Task> list)
 	{
-		int length = determineScheduleLength(list);
+		long length = determineScheduleLength(list);
 		for(int time = 0; time <= length; time++)
 			if(time < getProcessorDemand(list, time)) return false;
 		return true;
@@ -111,8 +114,8 @@ public class EDF_Checker implements SchedulabilityChecker
 	 *           manual_check = false;
 	 * 			
 	 *           for(int index = 0; index < list.size(); index++) {
-	 *           if(list.get(index).getDeadline() <
-	 *           list.get(index).getPeriod()) { System.out.println(
+	 *           if(list.get(index).getDeadline() < list.get(index).getPeriod())
+	 *           { System.out.println(
 	 *           "Be warned, the EDF and LLF schedulability checks do not account for deadlines shorter than the period; manual testing may be required to be certain in those cases..."
 	 *           ); manual_check = true; } }
 	 * 			
@@ -132,8 +135,9 @@ public class EDF_Checker implements SchedulabilityChecker
 	 *           System.out.println("Final Result: " + lhs + " <= " + rhs);
 	 *           
 	 *           if(lhs.getProcessedValue() <= rhs.getProcessedValue()) {
-	 *           System.out.println("The given List<Task> is schedulable by the "
-	 *           + name + " algorithm."); } else { System.out.println(
+	 *           System.out.println(
+	 *           "The given List<Task> is schedulable by the " + name +
+	 *           " algorithm."); } else { System.out.println(
 	 *           "The given List<Task> is not schedulable by the " + name +
 	 *           " algorithm."); }
 	 * 			
@@ -148,7 +152,7 @@ public class EDF_Checker implements SchedulabilityChecker
 	 * 			
 	 *           }
 	 * 
-	 * @Override protected Expression getRightHandSide(List<Task> list) {
-	 *           return new NumExp(1.0); }
+	 * @Override protected Expression getRightHandSide(List<Task> list) { return
+	 *           new NumExp(1.0); }
 	 */
 }

@@ -10,26 +10,26 @@ public abstract class Scheduler
 {
 	protected boolean details = false;
 	
-	private static int gcd(int a, int b)
+	private static long gcd(long ret, long b)
 	{
 		while(b > 0)
 		{
-			int c = b;
-			b = a % b;
-			a = c;
+			long c = b;
+			b = ret % b;
+			ret = c;
 		}
 		
-		return a;
+		return ret;
 	}
 	
-	private static int lcm(int a, int b)
+	private static long lcm(long ret, long b)
 	{
-		return a * (b / gcd(a, b));
+		return ret * (b / gcd(ret, b));
 	}
 	
-	public int determineScheduleLength(List<Task> list)
+	public long determineScheduleLength(List<Task> list)
 	{
-		int ret = list.get(0).getPeriod();
+		long ret = list.get(0).getPeriod();
 		
 		for(int index = 1; index < list.size(); index++)
 		{
@@ -39,12 +39,12 @@ public abstract class Scheduler
 		return ret;
 	}
 	
-	public abstract int getRelevantValue(Task task, int time);
+	public abstract double getRelevantValue(Task task, long time);
 	
-	protected List<Task> highestSort(List<Task> list, int time)
+	protected List<Task> highestSort(List<Task> list, long time)
 	{
 		List<Task> ret = new ArrayList<Task>();
-		int max = getRelevantValue(list.get(0), time);
+		double max = getRelevantValue(list.get(0), time);
 		for(Task task : list)
 		{
 			max = Math.max(max, getRelevantValue(task, time));
@@ -59,10 +59,10 @@ public abstract class Scheduler
 		return ret;
 	}
 	
-	protected List<Task> lowestSort(List<Task> list, int time)
+	protected List<Task> lowestSort(List<Task> list, long time)
 	{
 		List<Task> ret = new ArrayList<Task>();
-		int min = getRelevantValue(list.get(0), time);
+		double min = getRelevantValue(list.get(0), time);
 		for(Task task : list)
 		{
 			min = Math.min(min, getRelevantValue(task, time));
@@ -77,25 +77,24 @@ public abstract class Scheduler
 		return ret;
 	}
 	
-	public abstract String printTaskStatus(Task task, int time);
+	public abstract String printTaskStatus(Task task, long time);
 	
-	public abstract List<Task> prune(List<Task> list, int time);
+	public abstract List<Task> prune(List<Task> list, long time);
 	
 	public boolean schedule(List<Task> list, boolean details)
 	{
 		this.details = details;
 		list.forEach(new Consumer<Task>()
 		{
-
 			@Override
 			public void accept(Task t)
 			{
 				t.reset();
 			}
 		});
-		int length = determineScheduleLength(list);
+		long length = determineScheduleLength(list);
 		Task selected = null;
-		for(int time = 0; time < length;)
+		for(long time = 0; time < length;)
 		{
 			List<Task> temp_list = new ArrayList<Task>();
 			for(Task task : list)

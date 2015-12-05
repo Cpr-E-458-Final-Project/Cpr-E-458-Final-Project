@@ -7,8 +7,10 @@ import java.util.List;
 
 import basics.Task;
 import basics.expressions.AddExp;
+import basics.expressions.CeilExp;
 import basics.expressions.DivExp;
 import basics.expressions.Expression;
+import basics.expressions.MultExp;
 import basics.expressions.NumExp;
 
 public class DMS_Checker implements SchedulabilityChecker
@@ -32,15 +34,26 @@ public class DMS_Checker implements SchedulabilityChecker
 		
 		Collections.sort(newlist, compare_priority);
 		
+		if(details)
+		{
+			System.out.println("Now beginning exact analysis...");
+		}
+		
+		long deadline = -1;
 		for(int index = 0, length = newlist.size(); index < length; index++)
 		{
-			int deadline = newlist.get(index).getDeadline();
+			if(deadline == (deadline = newlist.get(index).getDeadline())) continue;
+			
+			if(details)
+			{
+				System.out.println("Now considering the response times of all tasks with deadlines no greater than " + deadline + "...");
+			}
 			
 			List<Expression> exps = new ArrayList<Expression>();
 			
 			for(Task task : newlist)
 			{
-				if(task.getDeadline() <= newlist.get(index).getDeadline())
+				if(task.getDeadline() <= deadline)
 				{
 					exps.add(new NumExp(task.getComputationTime()));
 				}
@@ -48,53 +61,76 @@ public class DMS_Checker implements SchedulabilityChecker
 			
 			Expression response_exp = new AddExp(exps);
 			
-			int response = (int) response_exp.getProcessedValue();
+			long response = (long) response_exp.getProcessedValue();
+			
+			if(details)
+			{
+				System.out.println("Now computing the response time of all Tasks with deadlines no greater than " + deadline + "...");
+				System.out.println(Expression.processAll(response_exp));
+				System.out.println("The response time of all Tasks with deadlines no greater than " + deadline + " is " + response + ".");
+			}
 			
 			boolean keep_going = true;
 			
 			while(keep_going)
 			{
-				if(deadline < response) return false;
+				if(deadline < response)
+				{
+					if(details)
+					{
+						System.out.println("All Tasks with deadlines no greater than " + deadline + " have a response time of " + response + "; the exact analysis test has failed.\n}");
+					}
+					return false;
+				}
+				long new_response = getResponse(newlist, deadline, response);
+				if(response == new_response) keep_going = false;
 				
-				if((response <= deadline) && (response == getResponse(newlist, newlist.get(index).getDeadline(), response))) keep_going = false;
+				response = new_response;
 				
-				response = getResponse(newlist, newlist.get(index).getDeadline(), response);
+			}
+			if(details)
+			{
+				System.out.println("All Tasks with deadlines no greater than " + deadline + " have a steady response time of " + response + "; the exact analysis test has passed for Tasks with deadlines of " + deadline + " or less.\n}");
 			}
 		}
-		
+		if(details)
+		{
+			System.out.println("All Tasks pass the exact requirement test.\n}");
+		}
 		return true;
 	}
 	
-	protected int getDemand(Task task, int time)
+	protected Expression getDemand(Task task, long response)
 	{
-		return(task.getComputationTime() * (int) Math.ceil(((double) time) / ((double) task.getPeriod())));
+		return new MultExp(
+				new NumExp(task.getComputationTime()), 
+				new CeilExp(
+						new DivExp(
+								new NumExp(response), 
+								new NumExp(task.getPeriod())
+						)
+				)
+		);
 	}
 	
-	protected int getResponse(List<Task> list, int value, int response)
+	protected long getResponse(List<Task> list, long deadline, long response)
 	{
-		int ret = 0;
+		List<Expression> exps = new ArrayList<Expression>();
 		for(Task task : list)
-			if(task.getDeadline() <= value) ret += getDemand(task, response);
-		return ret;
+		{
+			if(task.getDeadline() <= deadline)
+			{
+				exps.add(getDemand(task, response));
+			}
+		}
+		Expression ret_exp = new AddExp(exps);
+		if(details)
+		{
+			System.out.println("Now calculating the response time of all Tasks with deadlines no greater than " + deadline + " after time " + response + "...");
+			System.out.println(Expression.processAll(ret_exp));
+		}
+		return (int) ret_exp.getProcessedValue();
 	}
-	
-	/**
-	 * / protected boolean isHarmonic(List<Task> list) { if(list.size() <
-	 * 2) return true;
-	 * 
-	 * int[] arr = new int[list.size()];
-	 * 
-	 * for(int index = 0; index < arr.length; index++) arr[index] =
-	 * list.get(index).getPeriod();
-	 * 
-	 * Arrays.sort(arr);
-	 * 
-	 * for(int greater = 1; greater < arr.length; greater++) for(int lesser =
-	 * greater - 1; -1 < lesser; lesser--) if(arr[greater] == arr[lesser])
-	 * continue; else if(arr[greater] % arr[lesser] != 0) return false;
-	 * 
-	 * return true; } /
-	 **/
 	
 	protected boolean isPossible(List<Task> list)
 	{
@@ -110,13 +146,12 @@ public class DMS_Checker implements SchedulabilityChecker
 		
 		if(details)
 		{
-			System.out.println("Now calculating whether or not it is even possible to schedule the List<Task>...\n{");
-			printExpression(ret);
-			System.out.println(sum + " <= 1.0 is " + possible);
+			System.out.println("Now calculating whether or not it is even possible to schedule the Tasks...");
+			System.out.println(Expression.processAll(ret));
+			System.out.println(sum + " <= 1 is " + possible);
 			if(possible)
 				System.out.println("The possibility test has passed.");
-			else System.out.println("The possibility test has failed; the List<Task> cannot be scheduled.");
-			System.out.println("}");
+			else System.out.println("The possibility test has failed; the Tasks cannot be scheduled.");
 		}
 		return possible;
 	}
@@ -139,11 +174,11 @@ public class DMS_Checker implements SchedulabilityChecker
 	
 	protected void printExpression(Expression ret)
 	{
-		System.out.println(ret.print());
+		System.out.println(ret);
 		while(!ret.isProcessed())
 		{
 			ret = ret.process();
-			System.out.println(ret.print());
+			System.out.println(ret);
 		}
 	}
 	
