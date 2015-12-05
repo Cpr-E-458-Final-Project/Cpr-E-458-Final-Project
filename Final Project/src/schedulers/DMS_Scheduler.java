@@ -1,7 +1,8 @@
 package schedulers;
 
+import java.util.List;
+
 import basics.Task;
-import basics.TaskList;
 
 public class DMS_Scheduler extends Scheduler
 {
@@ -12,14 +13,14 @@ public class DMS_Scheduler extends Scheduler
 	}
 	
 	@Override
-	public TaskList prune(TaskList tasklist, int time)
-	{
-		return lowestSort(tasklist, time);
-	}
-	
-	@Override
 	public String printTaskStatus(Task task, int time)
 	{
 		return "Task " + task.getName() + " has a relative deadline of " + getRelevantValue(task, time) + ".";
+	}
+	
+	@Override
+	public List<Task> prune(List<Task> list, int time)
+	{
+		return lowestSort(list, time);
 	}
 }
