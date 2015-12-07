@@ -42,7 +42,7 @@ public class TaskNode extends Task
 	
 	public TaskNode(String name, long computation_time)
 	{
-		super(name, computation_time, 0);
+		this(name, computation_time, 0);
 	}
 	
 	public TaskNode(String name, long computation_time, double probability, List<TaskNode> children)
@@ -61,48 +61,55 @@ public class TaskNode extends Task
 		children.add(tasknode);
 	}
 	
-	public double getBoringPower(long deadline, double time)
+	public double getMaxFreqPower(long deadline, double time)
 	{
-		System.out.println(getName());
-		System.out.println("time " + time);
+		System.out.println("{\nTask name: "+getName() + ", Computation time: " + _computation_time);
+		System.out.println("Shared deadline: " + deadline);
+		System.out.println("Starting time: " + time);
 		double power = _computation_time;
-		System.out.println("Frequency " + getIdealFrequency(deadline, time));
-		System.out.println("Power before " + power);
-		System.out.println("Power after " + power);
-		time += _computation_time / getIdealFrequency(deadline, time);
+		//System.out.println("Ideal Frequency: " + getIdealFrequency(deadline, time));
+		System.out.println("Maximum frequency power consumption: " + power);
+		System.out.println("Running time at maximum frequency: " + _computation_time);
+		time += _computation_time;
+		System.out.println("Time after running task at maximum frequency: " + time);
 		double total_prob = 0.0;
 		for(TaskNode tasknode : children)
-			total_prob = tasknode.probability;
-		System.out.println("Children\n{");
+			total_prob += tasknode.probability;
+		System.out.println("Children {");
 		for(TaskNode tasknode : children)
 		{
-			power += (tasknode.probability / total_prob) * tasknode.getAveragePower(deadline, time);
+			power += (tasknode.probability / total_prob) * tasknode.getMaxFreqPower(deadline, time);
 		}
-		System.out.println("\n}");
-		System.out.println(getName() + " Total power: " + power);
+		System.out.println("}");
+		System.out.println("Total average power consumption of "+ getName() + " and its children at maximum frequency: " + power);
+		System.out.println("}");
 		return power;
 	}
 	
-	public double getAveragePower(long deadline, double time)
+	public double getIdealFreqPower(long deadline, double time)
 	{
-		System.out.println(getName());
-		System.out.println("time " + time);
+		
+		System.out.println("{\nTask name: "+getName() + ", Computation time: " + _computation_time);
+		System.out.println("Shared deadline: " + deadline);
+		System.out.println("Starting time: " + time);
 		double power = _computation_time;
-		System.out.println("Frequency " + getIdealFrequency(deadline, time));
-		System.out.println("Power before " + power);
+		System.out.println("Ideal Frequency: " + getIdealFrequency(deadline, time));
+		System.out.println("Maximum frequency power consumption: " + power);
 		power = _computation_time * Math.pow(getIdealFrequency(deadline, time), 2.0);
-		System.out.println("Power after " + power);
-		time += _computation_time / getIdealFrequency(deadline, time);
+		System.out.println("Ideal frequency power consumption: " + power);
+		time += _computation_time * getIdealFrequency(deadline, time);
+		System.out.println("Time after running task at ideal frequency: " + time);
 		double total_prob = 0.0;
 		for(TaskNode tasknode : children)
-			total_prob = tasknode.probability;
-		System.out.println("Children\n{");
+			total_prob += tasknode.probability;
+		System.out.println("Children {");
 		for(TaskNode tasknode : children)
 		{
-			power += (tasknode.probability / total_prob) * tasknode.getAveragePower(deadline, time);
+			power += (tasknode.probability / total_prob) * tasknode.getIdealFreqPower(deadline, time);
 		}
-		System.out.println("\n}");
-		System.out.println(getName() + " Total power: " + power);
+		System.out.println("}");
+		System.out.println("Total average power consumption of "+ getName()+" and its children at ideal frequencies: " + power);
+		System.out.println("}");
 		return power;
 	}
 }

@@ -85,9 +85,9 @@ public class Main
 	
 	private static final int MAX_TASK_NUMBER = 5;
 	
-	private static final int MAX_PERIOD_SIZE = 20;
+	private static final int MAX_PERIOD_SIZE = 25;
 	
-	private static final int NUMBER_OF_TESTS = 50;
+	private static final int NUMBER_OF_TESTS = 500;
 	
 	private static final int	RMS	= 0;
 	private static final int	DMS	= 1;
@@ -96,7 +96,7 @@ public class Main
 	private static final int	LLF	= 3;
 	
 	@SuppressWarnings("unused")
-	private static final boolean DETAILS = true;
+	private static final boolean DETAILS = false;
 	
 	private static Algorithm[] algorithms = {
 			This.new Algorithm("RMS", new RMS_Checker(), new RMS_Scheduler()),
@@ -110,18 +110,12 @@ public class Main
 	{
 		
 		test();
-		
+//		
 //		Task[] arr = {
-//		        new Task("T0", 14, 18, 14),
-//		        new Task("T1", 1, 9, 2),
-//		        new Task("T2", 2, 19, 2),
-//		        new Task("T3", 2, 7, 2),
-//		        new Task("T4", 3, 45, 11),
-//		        new Task("T5", 26, 42, 26),
-//		        new Task("T6", 19, 58, 33),
-//		        new Task("T7", 49, 74, 68),
-//		        new Task("T8", 6, 11, 6),
-//		        new Task("T9", 13, 46, 23)};
+//		        new Task("T0", 1, 4, 4),
+//		        new Task("T1", 1, 8, 8),
+//		        new Task("T2", 5, 16, 7),
+//		        new Task("T3", 5, 32, 28)};
 //				
 //		List<Task> list = new ArrayList<Task>();
 //		
@@ -141,7 +135,7 @@ public class Main
 //		{
 //			boolean check, schedule;
 //			System.out.println("\n" + algorithms[index].name + " Check = " + (check = algorithms[index].checker.isSchedulable(list, DETAILS)));
-//			System.out.println(algorithms[index].name + " Schedule = " + (schedule = algorithms[index].scheduler.schedule(list, DETAILS)));
+//			System.out.println(algorithms[index].name + " Schedule = " + (schedule = algorithms[index].scheduler.schedule(list, true)));
 //			if(check != schedule)
 //			{
 //				System.out.println("We have a mismatch!");
@@ -174,8 +168,7 @@ public class Main
 	
 	private static boolean test()
 	{
-		boolean[] results = new boolean[4];
-		
+//		boolean[] results = new boolean[4];
 		for(int i = 0; i < NUMBER_OF_TESTS; i++)
 		{
 			List<Task> list = new ArrayList<Task>();
@@ -185,6 +178,41 @@ public class Main
 				list.add(randomTask("T" + j));
 			}
 			
+			System.out.println("\nTrial number " + i + "\n");
+			
+			System.out.println("Tasks to be Examined:\n");
+			
+			for(Task task : list)
+			{
+				System.out.println("Name = " + task.getName() + ", Computation time = " + task.getComputationTime() + ", Period = " + task.getPeriod() + ", Deadline = " + task.getDeadline());
+			}
+			
+			System.out.println();
+			
+			for(int algorithm = 0; algorithm < algorithms.length; algorithm++)
+			{
+				boolean checked = algorithms[algorithm].checker.isSchedulable(list);
+				
+				System.out.println(algorithms[algorithm].name + " Check Results: " + checked);
+				
+				boolean scheduled = checked;
+				
+				if(checked)
+				{
+					System.out.println("Now scheduling using " + algorithms[algorithm].name + "...\n");
+					algorithms[algorithm].scheduler.schedule(list, true);
+					System.out.println();
+				}
+				
+				if(checked != scheduled)
+				{
+					System.out.println("We have a mismatch!");
+					return false;
+				}
+			}
+			System.out.println();
+			
+			/** /
 			for(int index = 0; index < algorithms.length; index++)
 			{
 				results[index] = algorithms[index].checker.isSchedulable(list);
@@ -217,8 +245,10 @@ public class Main
 					}
 				}
 			}
+			/**/
 		}
-		System.out.println("All Tests pass.");
+		
+		System.out.println("All "+NUMBER_OF_TESTS+" tests complete.");
 		return true;
 	}
 }
