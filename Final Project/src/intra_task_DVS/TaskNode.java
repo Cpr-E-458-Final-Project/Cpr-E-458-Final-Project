@@ -97,7 +97,7 @@ public class TaskNode extends Task
 		System.out.println("Maximum frequency power consumption: " + power);
 		power = _computation_time * Math.pow(getIdealFrequency(deadline, time), 2.0);
 		System.out.println("Ideal frequency power consumption: " + power);
-		time += _computation_time * getIdealFrequency(deadline, time);
+		time += _computation_time / getIdealFrequency(deadline, time);
 		System.out.println("Time after running task at ideal frequency: " + time);
 		double total_prob = 0.0;
 		for(TaskNode tasknode : children)
