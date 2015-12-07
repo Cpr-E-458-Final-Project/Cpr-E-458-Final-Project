@@ -13,7 +13,11 @@ public class Main
 		head = temp;
 		head.add(new TaskNode("B4", 10));
 		head.add(new TaskNode("B5", 150));
-		ret.getAveragePower(200, 0);
+
+		double normal = ret.getMaxFreqPower(200, 0);
+		System.out.println("\n\n");
+		double ideal = ret.getIdealFreqPower(200, 0);
+		System.out.println("\n\nIdeal frequency power consumption is only %" + ((100.0 * ideal) / normal) + " of the maximum frequency power consumption.");
 	}
 	
 }

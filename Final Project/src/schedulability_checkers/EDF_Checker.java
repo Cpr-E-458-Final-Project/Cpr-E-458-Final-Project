@@ -3,6 +3,7 @@ package schedulability_checkers;
 import java.util.List;
 
 import basics.Task;
+import schedulers.EDF_Scheduler;
 
 public class EDF_Checker implements SchedulabilityChecker
 {
@@ -43,6 +44,13 @@ public class EDF_Checker implements SchedulabilityChecker
 	public boolean isSchedulable(List<Task> list, boolean details)
 	{
 //		this.details = details;
+		if(new EDF_Scheduler().determineScheduleLength(list) < 0)
+		{
+			if(details)
+				System.out.println("The necessary schedule length is too long to generate a schedule for this list of Tasks; returning false.");
+			return false;
+		}
+		
 		if(isSimple(list))
 		{
 			return period_less_than(list);

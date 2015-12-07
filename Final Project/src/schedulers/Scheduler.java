@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import basics.Task;
+import schedulability_checkers.DMS_Checker;
+import schedulability_checkers.EDF_Checker;
+import schedulability_checkers.RMS_Checker;
 
 public abstract class Scheduler
 {
@@ -93,6 +96,15 @@ public abstract class Scheduler
 			}
 		});
 		long length = determineScheduleLength(list);
+		if(length < 1)
+		{
+			if(details)
+				System.out.println("The necessary schedule length is too long to generate a schedule for this list of Tasks;");
+			if(this instanceof RMS_Scheduler || this instanceof DMS_Scheduler)
+				return new DMS_Checker().isSchedulable(list, details);
+			else
+				return new EDF_Checker().isSchedulable(list, details);
+		}
 		Task selected = null;
 		for(long time = 0; time < length;)
 		{

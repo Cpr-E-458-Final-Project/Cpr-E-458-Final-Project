@@ -12,6 +12,7 @@ import basics.expressions.DivExp;
 import basics.expressions.Expression;
 import basics.expressions.MultExp;
 import basics.expressions.NumExp;
+import schedulers.DMS_Scheduler;
 
 public class DMS_Checker implements SchedulabilityChecker
 {
@@ -158,6 +159,12 @@ public class DMS_Checker implements SchedulabilityChecker
 		List<Task> newlist = new ArrayList<Task>();
 		
 		newlist.addAll(list);
+		if(new DMS_Scheduler().determineScheduleLength(list) < 0)
+		{
+			if(details)
+				System.out.println("The necessary schedule length is too long to generate a schedule for this list of Tasks; returning false.");
+			return false;
+		}
 //		this.details = details;
 		boolean ret = isPossible(newlist) && (utilizationTest(newlist) || exactAnalysis(newlist));
 //		this.details = false;
