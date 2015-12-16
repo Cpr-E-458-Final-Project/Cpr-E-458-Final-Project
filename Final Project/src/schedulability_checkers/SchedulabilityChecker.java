@@ -6,6 +6,5 @@ import basics.Task;
 
 public interface SchedulabilityChecker
 {
-	public boolean isSchedulable(List<Task> list, boolean details);
 	public boolean isSchedulable(List<Task> list);
 }
