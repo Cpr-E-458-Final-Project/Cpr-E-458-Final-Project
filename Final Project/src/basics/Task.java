@@ -1,5 +1,11 @@
 package basics;
 
+/**
+ * Herein lies the logic to a Task.
+ * 
+ * @author Robert Kloster
+ * 		
+ */
 public class Task
 {
 	/**
@@ -64,21 +70,23 @@ public class Task
 		_next_deadline = _deadline = _next_period = _period = period;
 	}
 	
+	/**
+	 * Constructs a Task object.
+	 * 
+	 * @param name
+	 *            The name of the Task.
+	 * @param computation_time
+	 *            The periodic computational need of the Task.
+	 * @param period
+	 *            The length of the period of the Task.
+	 * @param deadline
+	 *            The deadline of the Task.
+	 */
 	public Task(String name, long computation_time, long period, long deadline)
 	{
 		this(name, computation_time, period);
 		_next_deadline = _deadline = deadline;
 	}
-	
-	// @Override
-	// public Task clone()
-	// {
-	// Task ret = new Task(_name, _computation_time, _period);
-	// ret._deadline = _deadline;
-	// ret._next_deadline = _next_deadline;
-	// ret.setValue(_value);
-	// return ret;
-	// }
 	
 	/**
 	 * Get the computational need of the Task.
@@ -180,12 +188,6 @@ public class Task
 	public boolean isReady()
 	{
 		return 0 < _remaining_comp_time;
-	}
-	
-	public boolean isReasonable()
-	{
-		if((_computation_time < 1) || (_deadline < _computation_time) || (_period < _deadline)) return false;
-		return true;
 	}
 	
 	/**

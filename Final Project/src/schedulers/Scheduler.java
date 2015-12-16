@@ -5,42 +5,11 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import basics.Task;
-import schedulability_checkers.DMS_Checker;
-import schedulability_checkers.EDF_Checker;
-import schedulability_checkers.RMS_Checker;
+import basics.Util;
 
 public abstract class Scheduler
 {
 	protected boolean details = false;
-	
-	private static long gcd(long ret, long b)
-	{
-		while(b > 0)
-		{
-			long c = b;
-			b = ret % b;
-			ret = c;
-		}
-		
-		return ret;
-	}
-	
-	private static long lcm(long ret, long b)
-	{
-		return ret * (b / gcd(ret, b));
-	}
-	
-	public long determineScheduleLength(List<Task> list)
-	{
-		long ret = list.get(0).getPeriod();
-		
-		for(int index = 1; index < list.size(); index++)
-		{
-			ret = lcm(ret, list.get(index).getPeriod());
-		}
-		
-		return ret;
-	}
 	
 	public abstract double getRelevantValue(Task task, long time);
 	
@@ -95,15 +64,12 @@ public abstract class Scheduler
 				t.reset();
 			}
 		});
-		long length = determineScheduleLength(list);
+		long length = Util.determineScheduleLength(list);
 		if(length < 1)
 		{
-			if(details)
-				System.out.println("The necessary schedule length is too long to generate a schedule for this list of Tasks;");
-			if(this instanceof RMS_Scheduler || this instanceof DMS_Scheduler)
-				return new DMS_Checker().isSchedulable(list, details);
-			else
-				return new EDF_Checker().isSchedulable(list, details);
+			if(details) System.out.println("The necessary schedule length is too long to generate a schedule for this list of Tasks; returning false.");
+			this.details = false;
+			return false;
 		}
 		Task selected = null;
 		for(long time = 0; time < length;)

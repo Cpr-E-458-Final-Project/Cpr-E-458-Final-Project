@@ -15,60 +15,22 @@ import schedulers.LLF_Scheduler;
 import schedulers.RMS_Scheduler;
 import schedulers.Scheduler;
 
+/**
+ * This Main class allows for a user to set parameters on a randomized Task
+ * generator, such as how many Tasks per set, and the ranges of the periods,
+ * deadlines, and computation times.
+ *
+ * @author Robert Kloster
+ *		
+ */
 public class Main
 {
-	private static Main This = new Main();
-	
-	public interface Judger
-	{
-		public boolean judge(boolean[] results);
-	}
-	
-	public class DMS_not_RMS implements Judger
-	{
-		@Override
-		public boolean judge(boolean[] results)
-		{
-			return !results[RMS] && results[DMS];
-		}
-	}
-	
-	public class All_pass implements Judger
-	{
-		@Override
-		public boolean judge(boolean[] results)
-		{
-			return results[RMS];
-		}
-	}
-	
-	public class All implements Judger
-	{
-		@Override
-		public boolean judge(boolean[] results)
-		{
-			return true;
-		}
-	}
-	
-	public class All_fail implements Judger
-	{
-		@Override
-		public boolean judge(boolean[] results)
-		{
-			return !results[EDF];
-		}
-	}
-	
-	public class EDF_not_DMS implements Judger
-	{
-		@Override
-		public boolean judge(boolean[] results)
-		{
-			return !results[DMS] && results[EDF];
-		}
-	}
-	
+	/**
+	 * Simple containing class to store common information regarding an
+	 * Algorithm.
+	 *
+	 * @author Robert Kloster
+	 */
 	public class Algorithm
 	{
 		public SchedulabilityChecker	checker;
@@ -79,101 +41,111 @@ public class Main
 		{
 			this.name = name;
 			this.checker = checker;
-			this.scheduler = Scheduler;
+			scheduler = Scheduler;
 		}
 	}
 	
+	private static final Main THIS = new Main();
+	
+	/**
+	 * 1 <= number_of_tasks <= MAX_TASK_NUMBER
+	 */
 	private static final int MAX_TASK_NUMBER = 5;
 	
+	/**
+	 * 1 <= computation_time <= deadline <= period <= MAX_PERIOD_SIZE
+	 */
 	private static final int MAX_PERIOD_SIZE = 25;
 	
+	/**
+	 * The number of tests to run.
+	 */
 	private static final int NUMBER_OF_TESTS = 500;
 	
-	private static final int	RMS	= 0;
-	private static final int	DMS	= 1;
-	private static final int	EDF	= 2;
-	@SuppressWarnings("unused")
-	private static final int	LLF	= 3;
+	/**
+	 * The seed for the random number generator.
+	 */
+	private static final int RANDOM_SEED = 0;
 	
-	@SuppressWarnings("unused")
-	private static final boolean DETAILS = false;
+	/**
+	 * An array of Algorithms to use on the generated Task lists.
+	 */
+	private static final Algorithm[] ALGORITHMS = {THIS.new Algorithm("RMS", new RMS_Checker(), new RMS_Scheduler()), THIS.new Algorithm("DMS", new DMS_Checker(), new DMS_Scheduler()), THIS.new Algorithm("EDF", new EDF_Checker(), new EDF_Scheduler()), THIS.new Algorithm("LLF", new LLF_Checker(), new LLF_Scheduler())};
 	
-	private static Algorithm[] algorithms = {
-			This.new Algorithm("RMS", new RMS_Checker(), new RMS_Scheduler()),
-			This.new Algorithm("DMS", new DMS_Checker(), new DMS_Scheduler()),
-			This.new Algorithm("EDF", new EDF_Checker(), new EDF_Scheduler()),
-			This.new Algorithm("LLF", new LLF_Checker(), new LLF_Scheduler())};
-			
-	private static Random rand = new Random(1);
+	/**
+	 * The random number generator, given RANDOM_SEED as its seed.
+	 */
+	private static final Random RAND = new Random(RANDOM_SEED);
+	
+	/**
+	 * Tests a given Task list with the 4 main algorithms.
+	 * 
+	 * @param list
+	 *            The given Task list to check and possibly schedule.
+	 * @return True if there is no mismatch in the checker's result and the
+	 *         scheduler's result, false otherwise.
+	 */
+	public static boolean customTest(List<Task> list)
+	{
+		System.out.println("Tasks to be Examined:\n");
+		for(Task task : list)
+		{
+			System.out.println("Name = " + task.getName() + ",Computation time = " + task.getComputationTime() + ", Period = " + task.getPeriod() + ", Deadline = " + task.getDeadline());
+		}
+		
+		for(Algorithm algorithm : ALGORITHMS)
+		{
+			boolean check, schedule;
+			System.out.println("\n" + algorithm.name + " Check = " + (check = algorithm.checker.isSchedulable(list)));
+			System.out.println(algorithm.name + " Schedule = " + (schedule = algorithm.scheduler.schedule(list, true)));
+			if(check != schedule)
+			{
+				System.out.println("We have a mismatch!");
+				return false;
+			}
+		}
+		return true;
+	}
 	
 	public static void main(String[] args)
 	{
 		
+//		For use in debugging and testing edge cases.
+//		customTest(/*Your Task list here*/);
+		
 		test();
-//		
-//		Task[] arr = {
-//		        new Task("T0", 1, 4, 4),
-//		        new Task("T1", 1, 8, 8),
-//		        new Task("T2", 5, 16, 7),
-//		        new Task("T3", 5, 32, 28)};
-//				
-//		List<Task> list = new ArrayList<Task>();
-//		
-//		for(int i = 0; i < arr.length; i++)
-//		{
-//			list.add(arr[i]);
-//		}
-//		
-//		System.out.println("Tasks to be Examined:\n");
-//		for(Task task : list)
-//		{
-//			System.out.println("Name = " + task.getName() + ",Computation time = " + task.getComputationTime() + ", Period = " + task.getPeriod() + ", Deadline = " + task.getDeadline());
-////			System.out.println("new Task(\"" + task.getName() + "\", " + task.getComputationTime() + ", " + task.getPeriod() + ", " + task.getDeadline() + "),");
-//		}
-//		
-//		for(int index = 0; index < algorithms.length; index++)
-//		{
-//			boolean check, schedule;
-//			System.out.println("\n" + algorithms[index].name + " Check = " + (check = algorithms[index].checker.isSchedulable(list, DETAILS)));
-//			System.out.println(algorithms[index].name + " Schedule = " + (schedule = algorithms[index].scheduler.schedule(list, true)));
-//			if(check != schedule)
-//			{
-//				System.out.println("We have a mismatch!");
-//				return;
-//			}
-//		}
 	}
 	
+	/**
+	 * Randomly generates a Task with the given name.
+	 * 
+	 * @param name
+	 *            The name of the Task.
+	 * @return A randomly generated Task.
+	 */
 	private static Task randomTask(String name)
 	{
-		int period = 1 + rand.nextInt(1 + rand.nextInt(MAX_PERIOD_SIZE));
-		int deadline = 1 + rand.nextInt(period);
-		int comp = 1 + rand.nextInt(deadline);
+		int period = 1 + RAND.nextInt(1 + RAND.nextInt(MAX_PERIOD_SIZE));
+		int deadline = 1 + RAND.nextInt(period);
+		int comp = 1 + RAND.nextInt(deadline);
 		Task ret = new Task(name, comp, period, deadline);
 		return ret;
 	}
-
-	@SuppressWarnings("unused")
-	private static final Judger DMS_NOT_RMS = This.new DMS_not_RMS();
-	@SuppressWarnings("unused")
-	private static final Judger EDF_NOT_DMS = This.new EDF_not_DMS();
-	@SuppressWarnings("unused")
-	private static final Judger ALL_PASS = This.new All_pass();
-	@SuppressWarnings("unused")
-	private static final Judger ALL_FAIL = This.new All_fail();
-	@SuppressWarnings("unused")
-	private static final Judger ALL = This.new All();
-
-	private static final Judger PARSE = ALL;
 	
+	/**
+	 * Performs random Task list generation, schedulability checking, and
+	 * scheduling.
+	 * 
+	 * @return True if there is no mismatch in the checker's result and the
+	 *         scheduler's result, false otherwise.
+	 */
 	private static boolean test()
 	{
-//		boolean[] results = new boolean[4];
 		for(int i = 0; i < NUMBER_OF_TESTS; i++)
 		{
 			List<Task> list = new ArrayList<Task>();
 			
-			for(int j = 0, length = 1 + rand.nextInt(MAX_TASK_NUMBER); j < length; j++)
+			for(int j = 0, length = 1 + RAND.nextInt(MAX_TASK_NUMBER); j < length; j++)
 			{
 				list.add(randomTask("T" + j));
 			}
@@ -189,19 +161,23 @@ public class Main
 			
 			System.out.println();
 			
-			for(int algorithm = 0; algorithm < algorithms.length; algorithm++)
+			for(Algorithm algorithm : ALGORITHMS)
 			{
-				boolean checked = algorithms[algorithm].checker.isSchedulable(list);
+				boolean checked = algorithm.checker.isSchedulable(list);
 				
-				System.out.println(algorithms[algorithm].name + " Check Results: " + checked);
+				System.out.println(algorithm.name + " Check Results: " + checked);
 				
 				boolean scheduled = checked;
 				
 				if(checked)
 				{
-					System.out.println("Now scheduling using " + algorithms[algorithm].name + "...\n");
-					algorithms[algorithm].scheduler.schedule(list, true);
+					System.out.println("Now scheduling using " + algorithm.name + "...\n");
+					scheduled = algorithm.scheduler.schedule(list, true);
 					System.out.println();
+				}
+				else
+				{
+					scheduled = algorithm.scheduler.schedule(list);
 				}
 				
 				if(checked != scheduled)
@@ -211,44 +187,9 @@ public class Main
 				}
 			}
 			System.out.println();
-			
-			/** /
-			for(int index = 0; index < algorithms.length; index++)
-			{
-				results[index] = algorithms[index].checker.isSchedulable(list);
-			}
-			
-			if(PARSE.judge(results))
-			{
-				System.out.println("\nTrial number " + i + "\n");
-				
-				System.out.println("Tasks to be Examined:\n");
-				
-				for(Task task : list)
-				{
-					System.out.println("Name = " + task.getName() + ", Computation time = " + task.getComputationTime() + ", Period = " + task.getPeriod() + ", Deadline = " + task.getDeadline());
-//					System.out.println("new Task(\"" + task.getName() + "\", " + task.getComputationTime() + ", " + task.getPeriod() + ", " + task.getDeadline() + "),");
-				}
-				
-				System.out.println();
-				
-				for(int index = 0; index < algorithms.length; index++)
-				{
-					boolean check, schedule;
-					System.out.println(algorithms[index].name + " Check = " + (check = algorithms[index].checker.isSchedulable(list, true)));
-					System.out.println(algorithms[index].name + " Schedule = " + (schedule = algorithms[index].scheduler.schedule(list, true)) + "\n");
-					
-					if(check != schedule)
-					{
-						System.out.println("We have a mismatch!");
-						return false;
-					}
-				}
-			}
-			/**/
 		}
 		
-		System.out.println("All "+NUMBER_OF_TESTS+" tests complete.");
+		System.out.println("All " + NUMBER_OF_TESTS + " tests complete.");
 		return true;
 	}
 }
